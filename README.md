@@ -9,6 +9,14 @@ Largely inspired by [Ring](https://github.com/ring-clojure) and [Compojure](http
 * Handler - a function that takes an an object implementing `Psr\Http\Message\ServerRequestInterface` and returns an object implementing `Psr\Http\Message\ResponseInterface`
 * Middleware - higher-order functions that add additional functionality to handlers *(coming soon...)*
 
+## Install
+
+Via Composer
+
+``` bash
+$ composer require bobbynarvy/highway
+```
+
 ## Usage
 
 ``` php
