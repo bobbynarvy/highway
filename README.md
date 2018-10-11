@@ -1,5 +1,7 @@
 # Highway
 
+[![Build Status](https://travis-ci.org/bobbynarvy/highway.svg?branch=master)](https://travis-ci.org/bobbynarvy/highway)
+
 Simple routing for PHP.
 
 Largely inspired by [Ring](https://github.com/ring-clojure) and [Compojure](https://github.com/weavejester/compojure) and built with PSR-7 interfaces, an application built with the **Highway** router makes use of the following:
