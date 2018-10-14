@@ -7,16 +7,53 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Route
 {
+    /**
+     * The handler to dispatch when the route matches a request
+     * 
+     * The handler is passed an object implementing the 
+     * ServerRequestInterface interface and must return an 
+     * object implementing the ResponseInterface interface
+     * 
+     * @var \Closure
+     */
     private $handler;
 
+    /**
+     * The URI path to match
+     *
+     * @var string
+     */
     private $path;
 
+    /**
+     * A string where {param} becoms the regex pattern (\w+)
+     *
+     * @var string
+     */
     private $pattern;
 
+    /**
+     * The keys of the parameters
+     *
+     * @var string[]
+     */
     private $param_keys;
 
+    /**
+     * An associative array matching param keys to their values
+     *
+     * @var array
+     */
     private $matches;
 
+    /**
+     * Creates a new Route instance
+     *
+     * @param string $method
+     * @param string $path
+     * @param \Closure $handler
+     * @return void
+     */
     public function __construct(string $method, string $path, Closure $handler)
     {
         $this->method = $method;
@@ -24,11 +61,26 @@ class Route
         $this->handler = $handler;
     }
 
+    /**
+     * Gets the path property
+     *
+     * @return string
+     */
     public function getPath(): string
     {
         return $this->path;
     }
 
+    /**
+     * Determines whether a given HTTP request matches this route
+     * 
+     * Compares whether the request's path matches this instance's 
+     * pattern and whether the request method is the same as that of
+     * this instance
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return boolean
+     */
     public function matches(Request $request): bool
     {
         $path = $request->getUri()->getPath();
@@ -46,6 +98,11 @@ class Route
         return false;
     }
 
+    /**
+     * Gets the pattern property
+     *
+     * @return string
+     */
     public function getPattern(): string
     {
         if (!isset($this->pattern)) {
@@ -56,6 +113,12 @@ class Route
     }
 
 
+    /**
+     * Gets the parameter keys
+     *
+     * @return array
+     * @throws \Exception if parameter keys are not unique
+     */
     public function getParamKeys(): array
     {
         if (isset($this->param_keys)) {
@@ -82,11 +145,12 @@ class Route
         return $this->param_keys;
     }
 
-    public function getMatch()
-    {
-        return $this->match_object;
-    }
-
+    /**
+     * Dispatches the handler
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return Response
+     */
     public function dispatch(Request $request): Response
     {
         foreach ($this->matches as $key => $value) {
@@ -96,7 +160,13 @@ class Route
         return call_user_func($this->handler, $request);
     }
 
-    private function pairKeysWithValues($matches)
+    /**
+     * Associates a parameter key to its matching value
+     *
+     * @param array $matches
+     * @return array
+     */
+    private function pairKeysWithValues(array $matches)
     {
         $pairs = [];
 
