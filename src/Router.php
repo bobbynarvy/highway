@@ -21,6 +21,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class Router
 {
     /**
+     * The current path of the router
+     *
+     * @var string
+     */
+    private $currentPath;
+
+    /**
      * Creates a new Router instance
      * @return void
      */
@@ -147,6 +154,27 @@ class Router
     }
 
     /**
+     * Groups related routes that have the same path prefix
+     *
+     * @param string $prefix
+     * @param \Closure $callback
+     * @return void
+     */
+    public function with(string $prefix, Closure $callback)
+    {
+        $prefix = $this->addLeadingAndRemoveTrailingSlashes($prefix);
+
+        $this->currentPath = $this->mergePaths($this->currentPath, $prefix);
+
+        call_user_func($callback, $this);
+
+        // reset the current path by removing the prefix from the end of the path
+        $this->currentPath = $this->addLeadingAndRemoveTrailingSlashes(
+            preg_replace('~' . $prefix . '$~', '',  $this->currentPath)
+        );
+    }
+
+    /**
      * Gets the associated RouteCollection instance
      *
      * @return \Highway\RouteCollection
@@ -167,7 +195,7 @@ class Router
     protected function addRoute(string $method, string $path, Closure $callback): Route
     {
         $path = $this->addLeadingAndRemoveTrailingSlashes($path);
-        $path = $this->currentPath . $path;
+        $path = $this->mergePaths($this->currentPath, $path);
         $route = new Route($method, $path, $callback);
         $this->routes->addRoute($route);
 
@@ -183,9 +211,29 @@ class Router
     protected function addLeadingAndRemoveTrailingSlashes(string $path): string
     {
         $path = trim($path);
-        $path = ltrim($path, '/');
+        $path = (strlen($path) == 0 || $path[0] !== "/") ? "/" . $path : $path;
         $path = rtrim($path, '/');
 
         return $path;
+    }
+
+    /**
+     * Merges two paths together into a new path
+     * 
+     * @param string $path1
+     * @param string $path2
+     * @return string
+     */
+    protected function mergePaths(string $path1, string $path2): string
+    {
+        // Even though most paths have been trimmed of their trailing slash,
+        // sometimes, just merging the two paths still returns an invalid path.
+        // This is the case when the currentPath is simply '/' because 
+        // the slash is both the leading and trailing slash.
+        if (substr($path1, -1) == "/" && substr($path2, 0, 1) == "/") {
+            return rtrim($path1, "/") . $path2;
+        }
+
+        return $path1 . $path2;
     }
 }

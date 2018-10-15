@@ -55,4 +55,35 @@ class RouterTest extends TestCase
 
         $this->assertSame(404, $response->getStatusCode());
     }
+
+    /**
+     * @dataProvider prefixedRoutesProvider
+     */
+    public function testMatchesPrefixedRoutes($a, $b)
+    {
+        $requestFactory = new ServerRequestFactory;
+
+        $request = $requestFactory->createServerRequest('GET', $b);
+
+        $router = new Router;
+
+        $router->with("/users/{id}", function(Router $router) use ($a, $b) {
+            $router->get($a, function (Psr7Request $request) use ($b) {
+                $this->assertSame($b, $request->getUri()->getPath());
+    
+                return new Response;
+            });
+        });
+
+        $response = $router->match($request);
+    }
+
+    public function prefixedRoutesProvider()
+    {
+        return [
+            ["/", "/users/1"],
+            ["/messages", "/users/1/messages"],
+            ["/messages/{id2}", "/users/1/messages/1"]
+        ];
+    }
 }
