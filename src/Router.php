@@ -164,11 +164,15 @@ class Router
     {
         $prefix = $this->addLeadingAndRemoveTrailingSlashes($prefix);
 
+        // set the current path by merging the current path with the prefix.
+        // This way all router calls from within the callback will be prefixed.
         $this->currentPath = $this->mergePaths($this->currentPath, $prefix);
 
         call_user_func($callback, $this);
 
-        // reset the current path by removing the prefix from the end of the path
+        // reset the current path by removing the prefix from the end of the path.
+        // This is necessary to return to an earlier prefix especially after a 
+        // with() has been called from within another with() call
         $this->currentPath = $this->addLeadingAndRemoveTrailingSlashes(
             preg_replace('~' . $prefix . '$~', '',  $this->currentPath)
         );
