@@ -41,87 +41,87 @@ class Router
      * Adds a response handler to a GET request matching the supplied path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function get(string $path, Closure $callback): Route
+    public function get(string $path, Closure $handler): Route
     {
-        return $this->addRoute("GET", $path, $callback);
+        return $this->addRoute("GET", $path, $handler);
     }
 
     /**
      * Adds a response handler to a POST request matching the path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function post(string $path, Closure $callback): Route
+    public function post(string $path, Closure $handler): Route
     {
-        return $this->addRoute("POST", $path, $callback);
+        return $this->addRoute("POST", $path, $handler);
     }
 
     /**
      * Adds a response handler to a PUT request matching the path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function put(string $path, Closure $callback): Route
+    public function put(string $path, Closure $handler): Route
     {
-        return $this->addRoute("PUT", $path, $callback);
+        return $this->addRoute("PUT", $path, $handler);
     }
 
     /**
      * Adds a response handler to a PATCH request matching the path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function patch(string $path, Closure $callback): Route
+    public function patch(string $path, Closure $handler): Route
     {
-        return $this->addRoute("PATCH", $path, $callback);
+        return $this->addRoute("PATCH", $path, $handler);
     }
 
     /**
      * Adds a response handler to a DELETE request matching the path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function delete(string $path, Closure $callback): Route
+    public function delete(string $path, Closure $handler): Route
     {
-        return $this->addRoute("DELETE", $path, $callback);
+        return $this->addRoute("DELETE", $path, $handler);
     }
 
     /**
      * Adds a response handler to an OPTIONS request matching the path
      *
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    public function options(string $path, Closure $callback): Route
+    public function options(string $path, Closure $handler): Route
     {
-        return $this->addRoute("OPTIONS", $path, $callback);
+        return $this->addRoute("OPTIONS", $path, $handler);
     }
 
     /**
      * Adds a response handler to a request matching the path and any of the supplied HTTP methods
      *
      * @param array $methods
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route[]
      */
-    public function map(array $methods, Closure $callback): array
+    public function map(array $methods, Closure $handler): array
     {
         $routes = [];
 
         foreach ($methods as $method) {
-            $routes = $this->addRoute($method, $path, $callback);
+            $routes = $this->addRoute($method, $path, $handler);
         }
 
         return $routes;
@@ -157,18 +157,18 @@ class Router
      * Groups related routes that have the same path prefix
      *
      * @param string $prefix
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return void
      */
-    public function with(string $prefix, Closure $callback)
+    public function with(string $prefix, Closure $handler)
     {
         $prefix = $this->addLeadingAndRemoveTrailingSlashes($prefix);
 
         // set the current path by merging the current path with the prefix.
-        // This way all router calls from within the callback will be prefixed.
+        // This way all router calls from within the handler will be prefixed.
         $this->currentPath = $this->mergePaths($this->currentPath, $prefix);
 
-        call_user_func($callback, $this);
+        call_user_func($handler, $this);
 
         // reset the current path by removing the prefix from the end of the path.
         // This is necessary to return to an earlier prefix especially after a 
@@ -193,14 +193,14 @@ class Router
      *
      * @param string $method
      * @param string $path
-     * @param \Closure $callback
+     * @param \Closure $handler
      * @return \Highway\Route
      */
-    protected function addRoute(string $method, string $path, Closure $callback): Route
+    protected function addRoute(string $method, string $path, Closure $handler): Route
     {
         $path = $this->addLeadingAndRemoveTrailingSlashes($path);
         $path = $this->mergePaths($this->currentPath, $path);
-        $route = new Route($method, $path, $callback);
+        $route = new Route($method, $path, $handler);
         $this->routes->addRoute($route);
 
         return $route;
