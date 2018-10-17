@@ -132,12 +132,12 @@ class Router
      * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route[]
      */
-    public function map(array $methods, $handler): array
+    public function map(array $methods, $path, $handler): array
     {
         $routes = [];
 
         foreach ($methods as $method) {
-            $routes = $this->addRoute($method, $path, $handler);
+            $routes []= $this->addRoute($method, $path, $handler);
         }
 
         return $routes;
