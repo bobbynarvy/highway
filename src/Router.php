@@ -249,22 +249,12 @@ class Router
      *
      * @param mixed $handler
      * @return void
+     * @throws \Exception when the handler is not valid
      */
     protected function checkHandlerValidity($handler)
     {
-        // check if the handler is a closure and it has the right param type
-        $is_a_proper_closure = false;
+        $is_a_proper_closure = $this->checkClosureHandlerValidity($handler);
 
-        if (get_class($handler) === \Closure::class) {
-            $reflection = new \ReflectionFunction($handler);
-            $args = $reflection->getParameters();
-
-            if (count($args) > 0) {
-                $param_class_name = $args[0]->getClass()->name;
-                $is_a_proper_closure = $param_class_name === Request::class;
-            }
-        }
-        
         // check if the handler implements RequestHandlerInterface
         $is_a_req_interface = $handler instanceof RequestHandlerInterface;
 
@@ -275,5 +265,26 @@ class Router
                 and returns an implementation of ResponseInterface"
             );
         }        
+    }
+
+    /**
+     * Checks if the handler is a closure and it has the right param type
+     *
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
+     * @return bool
+     */
+    private function checkClosureHandlerValidity($handler): bool
+    {
+        if (get_class($handler) === \Closure::class) {
+            $reflection = new \ReflectionFunction($handler);
+            $args = $reflection->getParameters();
+
+            if (count($args) > 0) {
+                $param_class_name = $args[0]->getClass()->name;
+                return $param_class_name === Request::class;
+            }
+        }
+
+        return false;
     }
 }
