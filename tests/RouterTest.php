@@ -59,7 +59,7 @@ class RouterTest extends TestCase
             return new Response;
         });
 
-        $response = $router->match($request);
+        $response = $router->match($request)->handle($request);
 
         $this->assertInstanceOf(Psr7Response::class, $response);
     }
@@ -72,7 +72,7 @@ class RouterTest extends TestCase
 
         $router = new Router;
 
-        $response = $router->match($request);
+        $response = $router->match($request)->handle($request);
 
         $this->assertSame(404, $response->getStatusCode());
     }
@@ -96,7 +96,7 @@ class RouterTest extends TestCase
             });
         });
 
-        $response = $router->match($request);
+        $response = $router->match($request)->handle($request);
     }
 
     public function prefixedRoutesProvider()

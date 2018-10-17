@@ -29,6 +29,20 @@ class Router
     private $currentPath;
 
     /**
+     * To keep track of whether a match is found
+     *
+     * @var bool
+     */
+    private $matchFound;
+
+    /**
+     * The Route object that has been matched
+     *
+     * @var Route
+     */
+    private $match;
+
+    /**
      * Creates a new Router instance
      * @return void
      */
@@ -36,6 +50,7 @@ class Router
     {
         $this->routes = new RouteCollection;
         $this->currentPath = "/";
+        $this->matchFound = false;
     }
 
     /**
@@ -137,11 +152,31 @@ class Router
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function match(Request $request): Response
+    public function match(Request $request): Router
     {
         try {
-            $route = $this->routes->find($request);
+            $this->match = $this->routes->find($request);
+            $this->matchFound = true;
         } catch (\Exception $e) {
+            $this->matchFound = false;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Checks if a match has been found
+     *
+     * @return boolean
+     */
+    public function matchFound(): bool
+    {
+        return $this->matchFound;
+    }
+
+    public function handle(Request $request): Response
+    {
+        if (!$this->matchFound) {
             $response = new ZResponse;
             
             // The former $response object is immutable but
@@ -151,7 +186,7 @@ class Router
             return $response;
         }
 
-        return $route->dispatch($request);
+        return $this->match->dispatch($request);
     }
 
     /**
