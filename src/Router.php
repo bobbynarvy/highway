@@ -3,6 +3,7 @@ namespace Highway;
 
 use Closure;
 use Zend\Diactoros\Response as ZResponse;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -41,10 +42,10 @@ class Router
      * Adds a response handler to a GET request matching the supplied path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function get(string $path, Closure $handler): Route
+    public function get(string $path, $handler): Route
     {
         return $this->addRoute("GET", $path, $handler);
     }
@@ -53,10 +54,10 @@ class Router
      * Adds a response handler to a POST request matching the path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function post(string $path, Closure $handler): Route
+    public function post(string $path, $handler): Route
     {
         return $this->addRoute("POST", $path, $handler);
     }
@@ -65,10 +66,10 @@ class Router
      * Adds a response handler to a PUT request matching the path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function put(string $path, Closure $handler): Route
+    public function put(string $path, $handler): Route
     {
         return $this->addRoute("PUT", $path, $handler);
     }
@@ -77,10 +78,10 @@ class Router
      * Adds a response handler to a PATCH request matching the path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function patch(string $path, Closure $handler): Route
+    public function patch(string $path, $handler): Route
     {
         return $this->addRoute("PATCH", $path, $handler);
     }
@@ -89,10 +90,10 @@ class Router
      * Adds a response handler to a DELETE request matching the path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function delete(string $path, Closure $handler): Route
+    public function delete(string $path, $handler): Route
     {
         return $this->addRoute("DELETE", $path, $handler);
     }
@@ -101,10 +102,10 @@ class Router
      * Adds a response handler to an OPTIONS request matching the path
      *
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    public function options(string $path, Closure $handler): Route
+    public function options(string $path, $handler): Route
     {
         return $this->addRoute("OPTIONS", $path, $handler);
     }
@@ -113,10 +114,10 @@ class Router
      * Adds a response handler to a request matching the path and any of the supplied HTTP methods
      *
      * @param array $methods
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route[]
      */
-    public function map(array $methods, Closure $handler): array
+    public function map(array $methods, $handler): array
     {
         $routes = [];
 
@@ -157,10 +158,10 @@ class Router
      * Groups related routes that have the same path prefix
      *
      * @param string $prefix
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return void
      */
-    public function with(string $prefix, Closure $handler)
+    public function with(string $prefix, $handler)
     {
         $prefix = $this->addLeadingAndRemoveTrailingSlashes($prefix);
 
@@ -193,11 +194,13 @@ class Router
      *
      * @param string $method
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return \Highway\Route
      */
-    protected function addRoute(string $method, string $path, Closure $handler): Route
+    protected function addRoute(string $method, string $path, $handler): Route
     {
+        $this->checkHandlerValidity($handler);
+
         $path = $this->addLeadingAndRemoveTrailingSlashes($path);
         $path = $this->mergePaths($this->currentPath, $path);
         $route = new Route($method, $path, $handler);
@@ -239,5 +242,38 @@ class Router
         }
 
         return $path1 . $path2;
+    }
+
+    /**
+     * Checks whether a handler is valid
+     *
+     * @param mixed $handler
+     * @return void
+     */
+    protected function checkHandlerValidity($handler)
+    {
+        // check if the handler is a closure and it has the right param type
+        $is_a_proper_closure = false;
+
+        if (get_class($handler) === \Closure::class) {
+            $reflection = new \ReflectionFunction($handler);
+            $args = $reflection->getParameters();
+
+            if (count($args) > 0) {
+                $param_class_name = $args[0]->getClass()->name;
+                $is_a_proper_closure = $param_class_name === Request::class;
+            }
+        }
+        
+        // check if the handler implements RequestHandlerInterface
+        $is_a_req_interface = $handler instanceof RequestHandlerInterface;
+
+        if (!$is_a_proper_closure && !$is_a_req_interface) {
+            throw new \Exception(
+                "Handler must be an implementation of RequestHandlerInterface or 
+                be a Closure that takes an implementation of ServerRequestInterface
+                and returns an implementation of ResponseInterface"
+            );
+        }        
     }
 }

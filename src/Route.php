@@ -2,6 +2,7 @@
 namespace Highway;
 
 use Closure;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -14,7 +15,7 @@ class Route
      * ServerRequestInterface interface and must return an 
      * object implementing the ResponseInterface interface
      * 
-     * @var \Closure
+     * @var \Closure|\Psr\Http\Server\RequestHandlerInterface
      */
     private $handler;
 
@@ -51,10 +52,10 @@ class Route
      *
      * @param string $method
      * @param string $path
-     * @param \Closure $handler
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return void
      */
-    public function __construct(string $method, string $path, Closure $handler)
+    public function __construct(string $method, string $path, $handler)
     {
         $this->method = $method;
         $this->path = $path;
@@ -157,6 +158,10 @@ class Route
             $request = $request->withAttribute($key, $value);
         }
 
+        if ($this->handler instanceof RequestHandlerInterface) {
+            return $this->handler->handle($request);
+        } 
+        
         return call_user_func($this->handler, $request);
     }
 

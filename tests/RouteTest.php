@@ -3,7 +3,9 @@
 use Highway\Route;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\{Response, ServerRequestFactory};
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface as Psr7Response;
+use Psr\Http\Message\ServerRequestInterface as Psr7Request;
 
 class RouteTest extends TestCase
 {
@@ -47,11 +49,11 @@ class RouteTest extends TestCase
         $this->assertSame(["id", "num"], $param_keys);
     }
 
-    public function testFindsAMatch()
+    public function testFindsAMatchWithAClosure()
     {
         $route = new Route(
             "GET", "/users/{id}/orders/{num}", 
-            function(Request $request) {
+            function(Psr7Request $request) {
                 $this->assertSame("1", $request->getAttribute("id"));
 
                 $this->assertSame("2", $request->getAttribute("num"));
@@ -59,6 +61,35 @@ class RouteTest extends TestCase
                 return new Response;
             }
         );
+
+        $requestFactory = new ServerRequestFactory;
+
+        $request = $requestFactory->createServerRequest("GET", "/users/1/orders/2");
+
+        $route->matches($request);
+
+        $route->dispatch($request);
+    }
+
+    public function testFindsAMatchWithARequestHandler()
+    {
+        $handler = new class($this) implements RequestHandlerInterface {
+            public function __construct($test)
+            {
+                $this->test = $test;
+            }
+
+            public function handle(Psr7Request $request): Psr7Response
+            {
+                $this->test->assertSame("1", $request->getAttribute("id"));
+
+                $this->test->assertSame("2", $request->getAttribute("num"));
+
+                return new Response;
+            }
+        };
+
+        $route = new Route("GET", "/users/{id}/orders/{num}", $handler);
 
         $requestFactory = new ServerRequestFactory;
 

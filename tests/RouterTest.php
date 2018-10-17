@@ -5,15 +5,36 @@ use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\{ServerRequestFactory, Response};
 use Psr\Http\Message\ResponseInterface as Psr7Response;
 use Psr\Http\Message\ServerRequestInterface as Psr7Request;
+use Psr\Http\Server\RequestHandlerInterface;
 
 
 class RouterTest extends TestCase
 {
-    public function testAddedRoutePathHasALeadingButNoTrailingSlashes()
+    /**
+     * @expectedException Exception 
+     */
+    public function testThrowsExceptionWhenClosureHandlerIsIncorrect()
     {
         $router = new Router;
 
         $route = $router->get("/users/", function () {});
+    }
+
+    /**
+     * @expectedException Exception 
+     */
+    public function testThrowsExceptionWhenRequestHandlerClassIsIncorrect()
+    {
+        $router = new Router;
+
+        $route = $router->get("/users/", (new class {}));
+    }
+
+    public function testAddedRoutePathHasALeadingButNoTrailingSlashes()
+    {
+        $router = new Router;
+
+        $route = $router->get("/users/", function (Psr7Request $request) {});
 
         $route_path = $route->getPath();
 
