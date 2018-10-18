@@ -43,6 +43,13 @@ class Router
     protected $match;
 
     /**
+     * Handler to call when present and no match is found
+     *
+     * @var \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
+     */
+    protected $noMatchHandler;
+
+    /**
      * Creates a new Router instance
      * @return void
      */
@@ -183,13 +190,7 @@ class Router
     public function handle(Request $request): Response
     {
         if (!$this->matchFound) {
-            $response = new ZResponse;
-            
-            // The former $response object is immutable but
-            // returns a clone with the new status code
-            $response = $response->withStatus(404);
-            
-            return $response;
+            return $this->handleNoMatch($request);
         }
 
         return $this->match->dispatch($request);
@@ -228,6 +229,40 @@ class Router
     public function getRoutes(): RouteCollection
     {
         return $this->routes;
+    }
+
+    /**
+     * Handles requests that have no match
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    protected function handleNoMatch(Request $request): Response
+    {
+        if (isset($this->noMatchHandler)) {
+            if ($this->noMatchHandler instanceof RequestHandlerInterface) {
+                return $this->handler->handle($request);
+            } 
+
+            return call_user_func($this->noMatchHandler, $request);
+        }
+        
+        $response = new ZResponse;
+        
+        return $response->withStatus(404);
+    }
+
+    /**
+     * Sets an optional handler called when no match is found
+     *
+     * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler $handler
+     * @return void
+     */
+    public function setNoMatchHandler($handler)
+    {
+        $this->checkHandlerValidity($handler);
+
+        $this->noMatchHandler = $handler;
     }
 
     /**

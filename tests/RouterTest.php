@@ -77,6 +77,25 @@ class RouterTest extends TestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
+    public function testDispatchesCustomHandlerWhenNoMatchIsFound()
+    {
+        $requestFactory = new ServerRequestFactory;
+
+        $request = $requestFactory->createServerRequest('GET', '/inexistent-path');
+
+        $router = new Router;
+
+        $router->setNoMatchHandler(function(Psr7Request $request) {
+            $response = new Response;
+
+            return $response->withStatus(400); // just use 400 to make sure it's not the default 404
+        });
+
+        $response = $router->match($request)->handle($request);
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
     /**
      * @dataProvider prefixedRoutesProvider
      */
