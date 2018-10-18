@@ -12,10 +12,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  * 
  * An instantiated Router class is used by first setting paths to match. 
  * Each path is set using the method equivalent to the HTTP method it 
- * is intended to be handled with. The router is then passed an object
- * that instantiates the PSR-7 ServerRequestInterface interface to match 
- * and returns an object that instatiates the PSR-7 ServerRequestInterface
- * interface as a response.
+ * is intended to be handled along with a handler. The router is then passed
+ * an object that implements the PSR-7 ServerRequestInterface interface to match, 
+ * with which the handler is called, and finally returns an object that 
+ * implements the PSR-7 ServerRequestInterface interface as a response.
  * 
  * @author Robert Narvaez <narvaez.rm@gmail.com>
  */
@@ -150,7 +150,7 @@ class Router
      * returning an object instantiating ResponseInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Highway\Router
      */
     public function match(Request $request): Router
     {
@@ -174,6 +174,12 @@ class Router
         return $this->matchFound;
     }
 
+    /**
+     * Handles an incoming request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function handle(Request $request): Response
     {
         if (!$this->matchFound) {
