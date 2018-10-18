@@ -17,35 +17,35 @@ class Route
      * 
      * @var \Closure|\Psr\Http\Server\RequestHandlerInterface
      */
-    private $handler;
+    protected $handler;
 
     /**
      * The URI path to match
      *
      * @var string
      */
-    private $path;
+    protected $path;
 
     /**
      * A string where {param} becoms the regex pattern (\w+)
      *
      * @var string
      */
-    private $pattern;
+    protected $pattern;
 
     /**
      * The keys of the parameters
      *
      * @var string[]
      */
-    private $param_keys;
+    protected $param_keys;
 
     /**
      * An associative array matching param keys to their values
      *
      * @var array
      */
-    private $matches;
+    protected $matches;
 
     /**
      * Creates a new Route instance
@@ -171,7 +171,7 @@ class Route
      * @param array $matches
      * @return array
      */
-    private function pairKeysWithValues(array $matches)
+    protected function pairKeysWithValues(array $matches)
     {
         $pairs = [];
 

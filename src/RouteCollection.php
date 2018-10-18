@@ -14,7 +14,7 @@ class RouteCollection
      *
      * @var \Highway\Route[]
      */
-    private $routes;
+    protected $routes;
 
     /**
      * Creates a new instance of the RouteCollection class

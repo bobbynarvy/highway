@@ -26,21 +26,21 @@ class Router
      *
      * @var string
      */
-    private $currentPath;
+    protected $currentPath;
 
     /**
      * To keep track of whether a match is found
      *
      * @var bool
      */
-    private $matchFound;
+    protected $matchFound;
 
     /**
      * The Route object that has been matched
      *
      * @var Route
      */
-    private $match;
+    protected $match;
 
     /**
      * Creates a new Router instance
@@ -314,7 +314,7 @@ class Router
      * @param \Closure|\Psr\Http\Server\RequestHandlerInterface $handler
      * @return bool
      */
-    private function checkClosureHandlerValidity($handler): bool
+    protected function checkClosureHandlerValidity($handler): bool
     {
         if (get_class($handler) === \Closure::class) {
             $reflection = new \ReflectionFunction($handler);
