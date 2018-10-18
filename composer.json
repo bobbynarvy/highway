@@ -1,7 +1,6 @@
 {
     "name": "bobbynarvy/highway",
-    "description": "Simple routing for PHP",
-    "version": "0.2.1",
+    "description": "Simple routing for PHP. PSR-7 and PSR-15 compatible.",
     "type": "library",
     "keywords": [
         "router",
