@@ -10,11 +10,11 @@ class Route
 {
     /**
      * The handler to dispatch when the route matches a request
-     * 
-     * The handler is passed an object implementing the 
-     * ServerRequestInterface interface and must return an 
+     *
+     * The handler is passed an object implementing the
+     * ServerRequestInterface interface and must return an
      * object implementing the ResponseInterface interface
-     * 
+     *
      * @var \Closure|\Psr\Http\Server\RequestHandlerInterface
      */
     protected $handler;
@@ -27,7 +27,7 @@ class Route
     protected $path;
 
     /**
-     * A string where {param} becoms the regex pattern (\w+)
+     * A string where {param} becoms the regex pattern ([\.a-zA-Z0-9_-]+)
      *
      * @var string
      */
@@ -74,8 +74,8 @@ class Route
 
     /**
      * Determines whether a given HTTP request matches this route
-     * 
-     * Compares whether the request's path matches this instance's 
+     *
+     * Compares whether the request's path matches this instance's
      * pattern and whether the request method is the same as that of
      * this instance
      *
@@ -107,7 +107,7 @@ class Route
     public function getPattern(): string
     {
         if (!isset($this->pattern)) {
-            $this->pattern = preg_replace('~{([A-Za-z0-9-]*?)}~', '(\w+)', $this->path);
+            $this->pattern = preg_replace('~{([A-Za-z0-9]*?)}~', '([\.a-zA-Z0-9_-]+)', $this->path);
         }
 
         return $this->pattern;
@@ -126,7 +126,7 @@ class Route
             return $this->param_keys;
         }
 
-        $match = preg_match_all("~\{([A-Za-z0-9-]+)\}~", $this->path, $matches);
+        $match = preg_match_all("~\{([A-Za-z0-9]+)\}~", $this->path, $matches);
 
         $this->param_keys = [];
 
@@ -160,8 +160,8 @@ class Route
 
         if ($this->handler instanceof RequestHandlerInterface) {
             return $this->handler->handle($request);
-        } 
-        
+        }
+
         return call_user_func($this->handler, $request);
     }
 
