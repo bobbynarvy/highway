@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use Highway\{Route, RouteCollection};
-use Zend\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\ServerRequestFactory;
 
 class RouteCollectionTest extends TestCase
 {
@@ -11,11 +11,11 @@ class RouteCollectionTest extends TestCase
         $coll = new RouteCollection;
 
         $route = new Route("GET", "/users", function() {});
-        
+
         $coll->addRoute($route);
 
         $this->assertNotEmpty($coll->getRoutes());
-    }    
+    }
 
     /**
      * @dataProvider routesProvider
@@ -33,7 +33,7 @@ class RouteCollectionTest extends TestCase
         $request = $requestFactory->createServerRequest('GET', $b);
 
         $match = $coll->find($request);
-        
+
         $this->assertSame($route, $match);
     }
 
@@ -57,7 +57,7 @@ class RouteCollectionTest extends TestCase
         $requestFactory = new ServerRequestFactory;
 
         $request = $requestFactory->createServerRequest('GET', '/route-that-does-not-exist');
-        
+
         $match = $coll->find($request);
     }
 }

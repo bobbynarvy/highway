@@ -5,8 +5,8 @@ use Highway\{Router, RouterMiddleware};
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\ServerRequestFactory;
-use Zend\Diactoros\Response;
+use Laminas\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\Response;
 
 class RouterMiddlewareTest extends TestCase
 {

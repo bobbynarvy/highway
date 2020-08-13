@@ -2,7 +2,7 @@
 
 use Highway\Route;
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\{Response, ServerRequestFactory};
+use Laminas\Diactoros\{Response, ServerRequestFactory};
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Psr7Response;
 use Psr\Http\Message\ServerRequestInterface as Psr7Request;
