@@ -107,7 +107,7 @@ class Route
     public function getPattern(): string
     {
         if (!isset($this->pattern)) {
-            $this->pattern = preg_replace('~{([A-Za-z0-9]*?)}~', '([\.a-zA-Z0-9_-]+)', $this->path);
+            $this->pattern = preg_replace('~{([A-Za-z0-9_-]*?)}~', '([\.a-zA-Z0-9_-]+)', $this->path);
         }
 
         return $this->pattern;
@@ -126,7 +126,7 @@ class Route
             return $this->param_keys;
         }
 
-        $match = preg_match_all("~\{([A-Za-z0-9]+)\}~", $this->path, $matches);
+        $match = preg_match_all("~\{([A-Za-z0-9_-]+)\}~", $this->path, $matches);
 
         $this->param_keys = [];
 

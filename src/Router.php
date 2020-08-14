@@ -2,7 +2,6 @@
 namespace Highway;
 
 use Closure;
-// use Zend\Diactoros\Response as ZResponse;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;

@@ -24,9 +24,9 @@ class RouteTest extends TestCase
     public function routeParamsProvider()
     {
         return [
-            ["GET", "/users/{id}", "/users/([\.a-zA-Z0-9_-]+)"],
+            ["GET", "/users/{user_id}", "/users/([\.a-zA-Z0-9_-]+)"],
             ["GET", "/users/{id}/messages/{id}", "/users/([\.a-zA-Z0-9_-]+)/messages/([\.a-zA-Z0-9_-]+)"],
-            ["GET", "/some-route/{param1}", "/some-route/([\.a-zA-Z0-9_-]+)"]
+            ["GET", "/some-route/{param-1}", "/some-route/([\.a-zA-Z0-9_-]+)"]
         ];
     }
 
