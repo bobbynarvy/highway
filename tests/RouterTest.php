@@ -2,7 +2,7 @@
 
 use Highway\{Route, Router};
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\{ServerRequestFactory, Response};
+use Laminas\Diactoros\{ServerRequestFactory, Response};
 use Psr\Http\Message\ResponseInterface as Psr7Response;
 use Psr\Http\Message\ServerRequestInterface as Psr7Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -11,7 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class RouterTest extends TestCase
 {
     /**
-     * @expectedException Exception 
+     * @expectedException Exception
      */
     public function testThrowsExceptionWhenClosureHandlerIsIncorrect()
     {
@@ -21,7 +21,7 @@ class RouterTest extends TestCase
     }
 
     /**
-     * @expectedException Exception 
+     * @expectedException Exception
      */
     public function testThrowsExceptionWhenRequestHandlerClassIsIncorrect()
     {
@@ -110,7 +110,7 @@ class RouterTest extends TestCase
         $router->with("/users/{id}", function(Router $router) use ($a, $b) {
             $router->get($a, function (Psr7Request $request) use ($b) {
                 $this->assertSame($b, $request->getUri()->getPath());
-    
+
                 return new Response;
             });
         });

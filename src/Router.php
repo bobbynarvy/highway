@@ -2,21 +2,20 @@
 namespace Highway;
 
 use Closure;
-use Zend\Diactoros\Response as ZResponse;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * Class to match URIs to their handlers
- * 
- * An instantiated Router class is used by first setting paths to match. 
- * Each path is set using the method equivalent to the HTTP method it 
+ *
+ * An instantiated Router class is used by first setting paths to match.
+ * Each path is set using the method equivalent to the HTTP method it
  * is intended to be handled along with a handler. The router is then passed
- * an object that implements the PSR-7 ServerRequestInterface interface to match, 
- * with which the handler is called, and finally returns an object that 
+ * an object that implements the PSR-7 ServerRequestInterface interface to match,
+ * with which the handler is called, and finally returns an object that
  * implements the PSR-7 ServerRequestInterface interface as a response.
- * 
+ *
  * @author Robert Narvaez <narvaez.rm@gmail.com>
  */
 class Router
@@ -152,8 +151,8 @@ class Router
 
     /**
      * Matches an object instantiating ServerRequestInterface
-     * 
-     * If a match is found, the associated handler will be dispatched, 
+     *
+     * If a match is found, the associated handler will be dispatched,
      * returning an object instantiating ResponseInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
@@ -214,7 +213,7 @@ class Router
         call_user_func($handler, $this);
 
         // reset the current path by removing the prefix from the end of the path.
-        // This is necessary to return to an earlier prefix especially after a 
+        // This is necessary to return to an earlier prefix especially after a
         // with() has been called from within another with() call
         $this->currentPath = $this->addLeadingAndRemoveTrailingSlashes(
             preg_replace('~' . $prefix . '$~', '',  $this->currentPath)
@@ -242,14 +241,12 @@ class Router
         if (isset($this->noMatchHandler)) {
             if ($this->noMatchHandler instanceof RequestHandlerInterface) {
                 return $this->handler->handle($request);
-            } 
+            }
 
             return call_user_func($this->noMatchHandler, $request);
         }
-        
-        $response = new ZResponse;
-        
-        return $response->withStatus(404);
+
+        return new ResourceNotFoundResponse();
     }
 
     /**
@@ -302,7 +299,7 @@ class Router
 
     /**
      * Merges two paths together into a new path
-     * 
+     *
      * @param string $path1
      * @param string $path2
      * @return string
@@ -311,7 +308,7 @@ class Router
     {
         // Even though most paths have been trimmed of their trailing slash,
         // sometimes, just merging the two paths still returns an invalid path.
-        // This is the case when the currentPath is simply '/' because 
+        // This is the case when the currentPath is simply '/' because
         // the slash is both the leading and trailing slash.
         if (substr($path1, -1) == "/" && substr($path2, 0, 1) == "/") {
             return rtrim($path1, "/") . $path2;
@@ -336,11 +333,11 @@ class Router
 
         if (!$is_a_proper_closure && !$is_a_req_interface) {
             throw new \Exception(
-                "Handler must be an implementation of RequestHandlerInterface or 
+                "Handler must be an implementation of RequestHandlerInterface or
                 be a Closure that takes an implementation of ServerRequestInterface
                 and returns an implementation of ResponseInterface"
             );
-        }        
+        }
     }
 
     /**

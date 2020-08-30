@@ -2,7 +2,7 @@
 
 use Highway\Route;
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\{Response, ServerRequestFactory};
+use Laminas\Diactoros\{Response, ServerRequestFactory};
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Psr7Response;
 use Psr\Http\Message\ServerRequestInterface as Psr7Request;
@@ -24,14 +24,14 @@ class RouteTest extends TestCase
     public function routeParamsProvider()
     {
         return [
-            ["GET", "/users/{id}", "/users/(\w+)"],
-            ["GET", "/users/{id}/messages/{id}", "/users/(\w+)/messages/(\w+)"],
-            ["GET", "/some-route/{param1}", "/some-route/(\w+)"]
+            ["GET", "/users/{user_id}", "/users/([\.a-zA-Z0-9_-]+)"],
+            ["GET", "/users/{id}/messages/{id}", "/users/([\.a-zA-Z0-9_-]+)/messages/([\.a-zA-Z0-9_-]+)"],
+            ["GET", "/some-route/{param-1}", "/some-route/([\.a-zA-Z0-9_-]+)"]
         ];
     }
 
     /**
-     * @expectedException Exception 
+     * @expectedException Exception
      */
     public function testThrowsExceptionWhenKeysAreNotUnique()
     {
@@ -45,18 +45,18 @@ class RouteTest extends TestCase
         $route = new Route("GET", "/users/{id}/orders/{num}", function() {});
 
         $param_keys = $route->getParamKeys();
-        
+
         $this->assertSame(["id", "num"], $param_keys);
     }
 
     public function testFindsAMatchWithAClosure()
     {
         $route = new Route(
-            "GET", "/users/{id}/orders/{num}", 
+            "GET", "/users/{id}/orders/{num}",
             function(Psr7Request $request) {
-                $this->assertSame("1", $request->getAttribute("id"));
+                $this->assertSame("1-1", $request->getAttribute("id"));
 
-                $this->assertSame("2", $request->getAttribute("num"));
+                $this->assertSame("2-2", $request->getAttribute("num"));
 
                 return new Response;
             }
@@ -64,7 +64,7 @@ class RouteTest extends TestCase
 
         $requestFactory = new ServerRequestFactory;
 
-        $request = $requestFactory->createServerRequest("GET", "/users/1/orders/2");
+        $request = $requestFactory->createServerRequest("GET", "/users/1-1/orders/2-2");
 
         $route->matches($request);
 
