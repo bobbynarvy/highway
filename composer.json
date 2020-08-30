@@ -1,5 +1,5 @@
 {
-    "name": "fizk/highway",
+    "name": "bobbynarvy/highway",
     "description": "Simple routing for PHP. PSR-7 and PSR-15 compatible.",
     "type": "library",
     "keywords": [
